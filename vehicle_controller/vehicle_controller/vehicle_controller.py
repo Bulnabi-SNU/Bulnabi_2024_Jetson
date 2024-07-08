@@ -16,8 +16,8 @@ from px4_msgs.msg import VehicleCommand
 from px4_msgs.msg import OffboardControlMode
 from px4_msgs.msg import TrajectorySetpoint
 # add by chaewon
-from my_bboxes_msg import VehiclePhase
-from my_bboxes_msg import YoloObstacle # label, x, y
+from my_bboxes_msg.msg import VehiclePhase
+from my_bboxes_msg.msg import YoloObstacle # label, x, y
 
 # import math, numpy
 import math
@@ -229,11 +229,13 @@ class VehicleController(Node):
     """
     Callback functions for the timers
     """
+
     # add by chaewon
     def vehicle_phase_publisher_callback(self):
         msg = VehiclePhase()
         msg.phase = str(self.phase)
         self.vehicle_phase_publisher.publish(msg)
+
     
     def offboard_heartbeat_callback(self):
         """offboard heartbeat signal"""
@@ -479,7 +481,8 @@ class VehicleController(Node):
         elif self.phase == "precision_landing":
             pass
         print(self.phase)
-    
+
+
     """
     Callback functions for subscribers.
     """        

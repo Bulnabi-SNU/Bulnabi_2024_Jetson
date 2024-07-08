@@ -27,9 +27,11 @@ class YoloDetector(Node):
         
         # create publishers
         self.publisher_obstacle = self.create_publisher(YoloObstacle, '/yolo_obstacle', qos_profile)
-        self.publisher_target = self.create_publisher(YoloTarget, '/yolo_target', qos_profile)
+        #self.publisher_target = self.create_publisher(YoloTarget, '/yolo_target', qos_profile)
         # create subscriber
         self.subscriber_phase = self.create_subscription(VehiclePhase, '/vehicle_phase', self.phase_callback, qos_profile)
+        # create phase
+        self.phase = '0'
         
         # create cv_bridge instance
         self.bridge = CvBridge()
@@ -71,12 +73,19 @@ class YoloDetector(Node):
                 y_center = (y1 + y2) / 2
                 
                 # publish obstacle message
+                '''
                 if self.phase == '8' or '8.1' or '8.2' or '8.3' or '8.4':
                     obstacle_msg = YoloObstacle()
                     obstacle_msg.label = label
                     obstacle_msg.x = x_center
                     obstacle_msg.y = y_center
                     self.publisher_obstacle.publish(obstacle_msg)
+                '''
+                obstacle_msg = YoloObstacle()
+                obstacle_msg.label = label
+                obstacle_msg.x = x_center
+                obstacle_msg.y = y_center
+                self.publisher_obstacle.publish(obstacle_msg)
                 
                 # draw bounding box and label
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
@@ -84,15 +93,21 @@ class YoloDetector(Node):
 
 
         # check if it's time to publish target image
+        '''
         if self.phase == '3':
             current_time = time.time()
             if current_time - self.last_capture_time >= self.timer_period:
                 self.publish_target_image(frame)
                 self.last_capture_time = current_time
+        '''
+        current_time = time.time()
+        if current_time - self.last_capture_time >= self.timer_period:
+            self.publish_target_image(frame)
+            self.last_capture_time = current_time
 
 
         # display frame
-        # cv2.imshow('YOLOv5 Detection', frame)
+        cv2.imshow('YOLOv5 Detection', frame)
         
         '''
         MJPG streamer
@@ -118,7 +133,7 @@ class YoloDetector(Node):
             
             
             
-
+    
     def publish_target_image(self, frame):
         image_msg = self.bridge.cv2_to_imgmsg(frame, encoding="bgr8")
         target_msg = YoloTarget()
@@ -128,9 +143,10 @@ class YoloDetector(Node):
         file_path = os.path.join(self.target_capture_folder, f'target_{timestamp}.jpg')
         cv2.imwrite(file_path, frame)
         
-        self.publisher_target.publish(target_msg)
+        # publish the target image
+        #self.publisher_target.publish(target_msg)
         self.get_logger().info(f"Target image published and saved to {file_path}")
-
+    
     
 
     def phase_callback(self, msg):

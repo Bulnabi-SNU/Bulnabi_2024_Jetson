@@ -20,7 +20,7 @@ def generate_launch_description():
     )
     
     vehicle_controller = launch_ros.actions.Node(
-        package="vehicle_controller", executable="vehicle_controller", 
+        package="vehicle_controller", executable="controller", 
 	    parameters=[
             '~/Bulnabi_Jetson2/src/vehicle_controller/config/waypoint.yaml'
         ],
