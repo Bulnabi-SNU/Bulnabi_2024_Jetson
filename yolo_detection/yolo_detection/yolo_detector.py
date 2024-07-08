@@ -1,14 +1,20 @@
 import os
 import rclpy
+import sys
+# from pathlib import Path # for yolov5 local
+
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
 from my_bboxes_msg.msg import YoloObstacle, YoloTarget, VehiclePhase
+
 import cv2
 import torch
 from cv_bridge import CvBridge
 import time
+import numpy as np
+
 
 class YoloDetector(Node):
 
@@ -21,14 +27,19 @@ class YoloDetector(Node):
             history=HistoryPolicy.KEEP_LAST,
             depth=1
         )
-        
+
+
+        # define model path and load the model
         model_path = os.path.join(os.getcwd(), 'src/yolo_detection/config/best.pt')
-        self.model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path, force_reload=True)
+        self.model = torch.hub.load('/home/chaewon/yolov5', 'custom', path=model_path, source='local')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        print(type(self.model))
+
         
         # create publishers
         self.publisher_obstacle = self.create_publisher(YoloObstacle, '/yolo_obstacle', qos_profile)
         #self.publisher_target = self.create_publisher(YoloTarget, '/yolo_target', qos_profile)
-        # create subscriber
+        # create subscribe
         self.subscriber_phase = self.create_subscription(VehiclePhase, '/vehicle_phase', self.phase_callback, qos_profile)
         # create phase
         self.phase = '0'
@@ -73,19 +84,12 @@ class YoloDetector(Node):
                 y_center = (y1 + y2) / 2
                 
                 # publish obstacle message
-                '''
-                if self.phase == '8' or '8.1' or '8.2' or '8.3' or '8.4':
+                if (self.phase == '8' or '8.1' or '8.2' or '8.3' or '8.4') or True:
                     obstacle_msg = YoloObstacle()
                     obstacle_msg.label = label
                     obstacle_msg.x = x_center
                     obstacle_msg.y = y_center
                     self.publisher_obstacle.publish(obstacle_msg)
-                '''
-                obstacle_msg = YoloObstacle()
-                obstacle_msg.label = label
-                obstacle_msg.x = x_center
-                obstacle_msg.y = y_center
-                self.publisher_obstacle.publish(obstacle_msg)
                 
                 # draw bounding box and label
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
@@ -93,22 +97,17 @@ class YoloDetector(Node):
 
 
         # check if it's time to publish target image
-        '''
-        if self.phase == '3':
+        if (self.phase == '3') or True:
             current_time = time.time()
             if current_time - self.last_capture_time >= self.timer_period:
                 self.publish_target_image(frame)
                 self.last_capture_time = current_time
-        '''
-        current_time = time.time()
-        if current_time - self.last_capture_time >= self.timer_period:
-            self.publish_target_image(frame)
-            self.last_capture_time = current_time
 
 
         # display frame
         cv2.imshow('YOLOv5 Detection', frame)
         
+
         '''
         MJPG streamer
         '''
