@@ -1,13 +1,14 @@
 # Requirements
 
-1. v4l2_camera
+1. Install v4l2_camera
 
    ```
    sudo apt update
    sudo apt install ros-${ROS_DISTRO}-v4l2-camera
    ```
+<br/>
 
-2. change the path of local yolov5
+2. Change the path of local yolov5
 
    Download YOLOv5: https://github.com/ultralytics/yolov5
 
@@ -20,8 +21,9 @@
         model_path = os.path.join(os.getcwd(), 'src/yolo_detection/config/best.pt')
         self.model = torch.hub.load('/home/chaewon/yolov5', 'custom', path=model_path, source='local')
    ```
+<br/>
 
-4. (Optional) v4l2-ctl: change v4l2_camera settings
+3. (Optional) v4l2-ctl: change v4l2_camera settings
 
    ```
    sudo apt install v4l-utils
