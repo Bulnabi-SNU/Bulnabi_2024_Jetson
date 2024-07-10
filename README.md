@@ -68,6 +68,10 @@ source ./install/local_setup.bash
 
 # Streaming Images with MJPG-streamer
 
+- Start MJPG-streamer before execute launch files
+
+- Streaming website: http://127.0.0.1:8080/?action=stream
+
 ```
 # install mjpg streamer
 git clone https://github.com/jacksonliam/mjpg-streamer.git
@@ -81,9 +85,6 @@ sudo make install
 cd mjpg-streamer/mjpg-streamer-experimental
 ./mjpg_streamer -i "./input_file.so -f /tmp -n stream.jpg -d 0.1" -o "./output_http.so -w ./www"
 ```
-
-Streaming website: http://127.0.0.1:8080/?action=stream
-
 
 <br/>
 <br/>
